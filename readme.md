@@ -1,4 +1,4 @@
-#REDAXO Loader
+# REDAXO Loader
 
 ## One-File-Installer für REDAXO. 
 
