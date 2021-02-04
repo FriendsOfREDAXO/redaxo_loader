@@ -7,11 +7,14 @@
 ### FTP-Upload war gestern 👍
 
 ## Anwendung
-- redaxo_loader.php auf in den Webspace laden: [DOWNLOAD](https://github.com/FriendsOfREDAXO/redaxo_loader/releases/download/1.0/redaxo_loader.php)
-- redaxo_loader aufrufen
+- redaxo_loader.php in den Webspace laden: [DOWNLOAD](https://github.com/FriendsOfREDAXO/redaxo_loader/releases/download/1.0/redaxo_loader.php)
+- redaxo_loader.php aufrufen
 - REDAXO Version auswählen
 
 😀 Installation kann starten
+
+![Vorschau](https://raw.githubusercontent.com/FriendsOfREDAXO/redaxo_loader/assets/redaxo_loader.gif)
+
 
 ## Autor
 
@@ -25,8 +28,8 @@
 
 Ursprung: 
 
-- ein Git von Jan Kristinus  https://github.com/dergel
-- ein Trick von Thomas Skerbis   https://github.com/skerbis 
+- ein Git von Jan Kristinus https://github.com/dergel
+- ein Trick von Thomas Skerbis https://github.com/skerbis 
 
 ## Finalisiert durch 
 
