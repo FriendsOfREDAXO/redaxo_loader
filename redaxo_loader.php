@@ -23,7 +23,7 @@ $install_path = './';
 $install_file = $install_path . 'redaxo.zip';
 $loader_file = $install_path . 'redaxo_loader.php';
 define('REPO', 'redaxo/redaxo');
-$opts = ['http' => ['method' => 'GET', 'header' => ['User-Agent: PHP']]];
+$opts = ['http' => ['method' => 'GET', 'header' => ['User-Agent: REDAXO Loader']]];
 $context = stream_context_create($opts);
 $releases = file_get_contents('https://api.github.com/repos/' . REPO . '/releases', false, $context);
 $releases = json_decode($releases);
