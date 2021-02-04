@@ -132,7 +132,7 @@ else
     <div class="row">
       <div class="col-lg-12 text-center">
         <h1 class="mt-5">REDAXO Loader</h1>
-        <p class="lead">Lade die aktuelleste Version des <a href="https://www.redaxo.org" target="_blank">REDAXO CMS</a> von GitHub herunter,<br>entpacke sie automatisch auf deinem Server und beginne sofort mit der Installation.</p>
+        <p class="lead">Lade die gewünschte Version des <a href="https://www.redaxo.org" target="_blank">REDAXO CMS</a> von GitHub herunter,<br>entpacke sie automatisch auf deinem Server und beginne sofort mit der Installation.</p>
       </div>
     </div>  
     <div class="row">
