@@ -1,7 +1,7 @@
 <?php
 /**
  * Download latest REDAXO release from github
- * License: Public Domain
+ * License: MIT License
  */
 
 // Funktion die file_get_contents mit curl ersetzt
