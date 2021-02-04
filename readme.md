@@ -3,9 +3,8 @@
 ## One-File-Installer für REDAXO. 
 
 ![Screenshot](https://raw.githubusercontent.com/FriendsOfREDAXO/redaxo_loader/assets/screenshot.png)
-Startschirm
 
-FTP-Upload war gestern 
+### FTP-Upload war gestern 👍
 
 ## Anwendung
 - redaxo_loader.php auf in den Webspace laden: [DOWNLOAD](https://github.com/FriendsOfREDAXO/redaxo_loader/releases/download/1.0/redaxo_loader.php)
