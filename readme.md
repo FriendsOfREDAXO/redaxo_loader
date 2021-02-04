@@ -28,7 +28,7 @@
 
 Ursprung: 
 
-- ein Git von Jan Kristinus https://github.com/dergel
+- ein Gist von Jan Kristinus https://github.com/dergel
 - ein Trick von Thomas Skerbis https://github.com/skerbis 
 
 ## Finalisiert durch 
