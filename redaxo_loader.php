@@ -14,7 +14,7 @@ $loader_name = 'redaxo_loader.php';
 $required = [];
 
 if (basename(__FILE__) != $loader_name) {
-    $required[] = 'Der Dateiname deas Loaders ist nicht'.$loader_name;
+    $required[] = 'Der Dateiname des Loaders ist nicht'.$loader_name;
 }
 
 if (!in_array('curl', get_loaded_extensions())) {
