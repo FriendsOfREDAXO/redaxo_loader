@@ -78,13 +78,11 @@ if (isset($_GET['func']))
             $zip->extractTo($install_path);
             $zip->close();
             echo '<div class="alert alert-success">REDAXO wurde erfolgreich entpackt. Du wirst in 5 Sekunden <a href="/redaxo">zum Setup</a> weitergeleitet.</div>';
-            $loader = curl_file_get_contents($loader_file);
-            $loader = str_replace("\n" . '// info', '', $loader);
-            file_put_contents($loader_file, $loader);
             unlink($install_file);
 			$redirect = $_SERVER['REQUEST_URI'];
 			$redirect = str_replace('redaxo_loader.php?func=unzip', 'redaxo', $redirect);
             echo '<script>setTimeout(function(){ window.location.replace("'.$redirect.'"); }, 5000);</script>';
+            unlink($loader_file);		
         }
         else
         {
