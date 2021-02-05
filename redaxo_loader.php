@@ -62,7 +62,7 @@ if (isset($_GET['func']))
     {
         $url = $_GET['url'];
         $redaxo_core = curl_file_get_contents($url);
-        if (curl_file_put_contents($install_file, $redaxo_core))
+        if (file_put_contents($install_file, $redaxo_core))
         {
             echo '<div class="alert alert-warning"><code>redaxo.zip</code> wurde heruntergeladen und wird jetzt entpackt.</div>';
         }
