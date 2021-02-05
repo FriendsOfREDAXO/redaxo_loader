@@ -7,14 +7,15 @@
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-if(isset($_GET['url']))
+// prevent Downloads from not intended URLs
+if(isset($_GET['url']) && isset($_GET['download']))
    {   
   $pos = strpos($_GET['url'],'https://github.com/redaxo/redaxo/releases/');
   if($pos == false && $pos != 0)
     {
       exit();  
     }
-   }
+  }
 
 // set loader name
 $loader_name = 'redaxo_loader.php';
@@ -73,7 +74,7 @@ if (isset($_GET['func'])) {
 
     $func = $_GET['func'];
 
-    if ($func === "download") {
+    if ($func === "download" isset($_GET['url'])) {
         $url = $_GET['url'];
         $redaxo_core = curl_file_get_contents($url);
         if (file_put_contents($install_file, $redaxo_core)) {
