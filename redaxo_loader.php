@@ -8,11 +8,12 @@ error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
 // prevent Downloads from not intended URLs
-if(isset($_GET['url']) && isset($_GET['download']))
+if(isset($_GET['url']) || isset($_GET['download']))
    {   
   $pos = strpos($_GET['url'],'https://github.com/redaxo/redaxo/releases/');
-  if($pos == false && $pos != 0)
+  if($pos === false && $pos !== 0)
     {
+	  echo 'Wrong file';
       exit();  
     }
   }
@@ -317,4 +318,5 @@ else {
 <?php
 }
 ?>
+
 
