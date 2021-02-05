@@ -1,6 +1,8 @@
-# REDAXO Loader
+# REDAXO-Loader
 
 ## One-File-Installer für REDAXO. 
+
+Der REDAXO-Loader ist der einfachste Weg REDAXO auf einen Webspace zu kopieren.  Nach Auswahl der gewünschten REDAXO-Version wird diese bei GitHub heruntergeladen, entpackt und das Setup gestartet. Der Loader wird bei Erfolg automatisch vom Server gelöscht.  
 
 ![Screenshot](https://raw.githubusercontent.com/FriendsOfREDAXO/redaxo_loader/assets/screenshot.png)
 
