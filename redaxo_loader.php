@@ -7,6 +7,15 @@
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
+if(isset($_GET['url'])
+{   
+$pos = strpos('https://github.com/redaxo/redaxo/releases/', $_GET['url']);
+  if(false == $pos)
+    {
+      exit();  
+    }
+}
+
 // set loader name
 $loader_name = 'redaxo_loader.php';
 
