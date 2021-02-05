@@ -74,7 +74,7 @@ if (isset($_GET['func'])) {
 
     $func = $_GET['func'];
 
-    if ($func === "download" isset($_GET['url'])) {
+    if ($func === "download" && isset($_GET['url'])) {
         $url = $_GET['url'];
         $redaxo_core = curl_file_get_contents($url);
         if (file_put_contents($install_file, $redaxo_core)) {
@@ -317,3 +317,4 @@ else {
 <?php
 }
 ?>
+
