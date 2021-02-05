@@ -10,11 +10,11 @@ ini_set("display_errors", 1);
 
 $required = [];
 if (!class_exists('curl')) {
-    $required[]= 'Curl-Class wurde nicht gefunden';
+    $required[]= 'Die Class curl wurde nicht gefunden';
 }
 
 if (!class_exists('zip')) {
-    $required[]= 'Zip-Class wurde nicht gefunden';
+    $required[]= 'Die Class zip wurde nicht gefunden';
 }
 
 if (!function_exists('json_decode')) {
