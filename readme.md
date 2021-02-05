@@ -7,7 +7,7 @@
 ### FTP-Upload war gestern 👍
 
 ## Anwendung
-- redaxo_loader.php in den Webspace laden: [DOWNLOAD](https://github.com/FriendsOfREDAXO/redaxo_loader/releases/download/1.0/redaxo_loader.php)
+- redaxo_loader.php in den Webspace laden: [DOWNLOAD](https://github.com/FriendsOfREDAXO/redaxo_loader/releases/download/1.0.1/redaxo_loader.php)
 - redaxo_loader.php aufrufen
 - REDAXO Version auswählen
 
