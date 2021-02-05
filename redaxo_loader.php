@@ -12,7 +12,7 @@ ini_set("display_errors", 1);
 define('REPO', 'redaxo/redaxo');  
 
 // set loader name
-$loader_name = __FILE__;
+$loader_name = basename(__FILE__);
 
 $install_path = './';
 $install_file = $install_path . 'redaxo.zip';
