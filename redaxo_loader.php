@@ -7,12 +7,14 @@
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-// check requirements
+// set loader name
+$loader_name = 'redaxo_loader.php';
 
+// check requirements
 $required = [];
 
-if (basename(__FILE__) != 'redaxo_loader.php') {
-    $required[] = 'Der Dateiname deas Loaders ist nicht redaxo_loader.php';
+if (basename(__FILE__) != $loader_name) {
+    $required[] = 'Der Dateiname deas Loaders ist nicht'.$loader_name;
 }
 
 if (!in_array('curl', get_loaded_extensions())) {
@@ -52,7 +54,7 @@ function curl_file_get_contents($url)
 
 $install_path = './';
 $install_file = $install_path . 'redaxo.zip';
-$loader_file = $install_path . 'redaxo_loader.php';
+$loader_file = $install_path . $loader_name;
 define('REPO', 'redaxo/redaxo');
 $releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases');
 $releases = json_decode($releases);
@@ -80,7 +82,7 @@ if (isset($_GET['func'])) {
             echo '<div class="alert alert-success">REDAXO wurde erfolgreich entpackt. Du wirst in 5 Sekunden <a href="/redaxo">zum Setup</a> weitergeleitet.</div>';
             unlink($install_file);
             $redirect = $_SERVER['REQUEST_URI'];
-            $redirect = str_replace('redaxo_loader.php?func=unzip', 'redaxo', $redirect);
+            $redirect = str_replace($loader_name.'?func=unzip', 'redaxo', $redirect);
             echo '<script>setTimeout(function(){ window.location.replace("' . $redirect . '"); }, 5000);</script>';
             unlink($loader_file);
         } else {
@@ -259,7 +261,7 @@ else {
 
                 function unzip() {
                     $.ajax({
-                        url: 'redaxo_loader.php?func=unzip',
+                        url: '<?=$loader_name?>?func=unzip',
                         error: function() {
                             $('#info').html('<div class="alert alert-danger">Ein Fehler beim Entpacken ist aufgetreten.</div>');
                         },
@@ -279,7 +281,7 @@ else {
                     var downloadUrl = $('#version-select').find(':selected').val()
                     e.preventDefault(); // prevent native submit
                     $.ajax({
-                        url: 'redaxo_loader.php?func=download&url=' + downloadUrl,
+                        url: '<?=$loader_name?>?func=download&url=' + downloadUrl,
                         error: function() {
                             $('#info').html('<div class="alert alert-danger">Ein Fehler ist aufgetreten.</div>');
                         },
