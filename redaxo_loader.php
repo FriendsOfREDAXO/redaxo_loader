@@ -12,6 +12,7 @@ function curl_file_get_contents($url)
     curl_setopt($curly, CURLOPT_RETURNTRANSFER, 1); //Return Data
     curl_setopt($curly, CURLOPT_FOLLOWLOCATION, 1);
     curl_setopt($curly, CURLOPT_URL, $url);
+    curl_setopt($curly, CURLOPT_USERAGENT, "REDAXO Loader");
     $content = curl_exec($curly);
     curl_close($curly);
     return $content;
@@ -23,9 +24,7 @@ $install_path = './';
 $install_file = $install_path . 'redaxo.zip';
 $loader_file = $install_path . 'redaxo_loader.php';
 define('REPO', 'redaxo/redaxo');
-$opts = ['http' => ['method' => 'GET', 'header' => ['User-Agent: REDAXO Loader']]];
-$context = stream_context_create($opts);
-$releases = file_get_contents('https://api.github.com/repos/' . REPO . '/releases', false, $context);
+$releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases', false, $context);
 $releases = json_decode($releases);
 
 // Für den Ajax-Aufruf
@@ -38,7 +37,7 @@ if (isset($_GET['func']))
     {
         $url = $_GET['url'];
         $redaxo_core = curl_file_get_contents($url);
-        if (file_put_contents($install_file, $redaxo_core))
+        if (curl_file_put_contents($install_file, $redaxo_core))
         {
             echo '<div class="alert alert-warning"><code>redaxo.zip</code> wurde heruntergeladen und wird jetzt entpackt.</div>';
         }
@@ -54,7 +53,7 @@ if (isset($_GET['func']))
             $zip->extractTo($install_path);
             $zip->close();
             echo '<div class="alert alert-success">REDAXO wurde erfolgreich entpackt. Du wirst in 5 Sekunden <a href="/redaxo">zum Setup</a> weitergeleitet.</div>';
-            $loader = file_get_contents($loader_file);
+            $loader = curl_file_get_contents($loader_file);
             $loader = str_replace("\n" . '// info', '', $loader);
             file_put_contents($loader_file, $loader);
             unlink($install_file);
