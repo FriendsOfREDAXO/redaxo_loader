@@ -1,6 +1,6 @@
 <?php
 /**
- * Download latest REDAXO release from github
+ * Download REDAXO releases from github
  * License: MIT License
  */
 error_reporting(E_ALL);
