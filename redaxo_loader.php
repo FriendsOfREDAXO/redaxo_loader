@@ -3,6 +3,33 @@
  * Download latest REDAXO release from github
  * License: MIT License
  */
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
+// check requirements
+
+$required = [];
+if (!class_exists('curl')) {
+    $required[]= 'Curl-Class wurde nicht gefunden';
+}
+
+if (!class_exists('zip')) {
+    $required[]= 'Zip-Class wurde nicht gefunden';
+}
+
+if (!function_exists('json_decode')) {
+    $required[]= 'Die Funktion json_decode wurde nicht gefunden';
+}
+if (!function_exists('file_put_contents')) {
+    $required[]= 'Die Funktion file_put_contents wurde nicht gefunden';
+}
+
+if (count($required)>0)
+    {
+	echo '<h2>Fehler: Voraussetzungen nicht erfüllt</h2>';
+	echo '<ul><li>' . implode('</li><li>', $required) . '</li></ul>';
+	exit();    
+    }
 
 // Funktion die file_get_contents mit curl ersetzt
 function curl_file_get_contents($url)
@@ -18,8 +45,6 @@ function curl_file_get_contents($url)
     return $content;
 }
 
-error_reporting(E_ALL);
-ini_set("display_errors", 1);
 $install_path = './';
 $install_file = $install_path . 'redaxo.zip';
 $loader_file = $install_path . 'redaxo_loader.php';
