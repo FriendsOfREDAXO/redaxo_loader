@@ -9,11 +9,11 @@ ini_set("display_errors", 1);
 // check requirements
 
 $required = [];
-if (!class_exists('curl')) {
+if (!in_array('curl', get_loaded_extensions())) {
     $required[]= 'Die Class curl wurde nicht gefunden';
 }
 
-if (!class_exists('zip')) {
+if (!in_array('zip', get_loaded_extensions())) {
     $required[]= 'Die Class zip wurde nicht gefunden';
 }
 
@@ -49,7 +49,7 @@ $install_path = './';
 $install_file = $install_path . 'redaxo.zip';
 $loader_file = $install_path . 'redaxo_loader.php';
 define('REPO', 'redaxo/redaxo');
-$releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases', false, $context);
+$releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases');
 $releases = json_decode($releases);
 
 // Für den Ajax-Aufruf
@@ -303,3 +303,4 @@ else
 <?php
 }
 ?>
+
