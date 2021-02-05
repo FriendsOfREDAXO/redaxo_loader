@@ -8,83 +8,85 @@ ini_set("display_errors", 1);
  * License: MIT License
  */
 
+// github releases from
+define('REPO', 'redaxo/redaxo');  
 
 // set loader name
-$loader_name = 'redaxo_loader.php';
+$loader_name = __FILE__;
+
+$install_path = './';
+$install_file = $install_path . 'redaxo.zip';
+$loader_file = $install_path . $loader_name;
+
 
 // check requirements
 $required = [];
 
-if (basename(__FILE__) != $loader_name) {
-    $required[] = 'Der Dateiname des Loaders ist nicht'.$loader_name;
+if (basename(__FILE__) == 'index.php') {
+    $required[] = 'Der Dateiname des Loaders darf nicht <code>index.php</code> sein';
 }
 
 if (!in_array('curl', get_loaded_extensions())) {
-    $required[] = 'Die Class curl wurde nicht gefunden';
+    $required[] = 'Die Klasse <code>curl</code> wurde nicht gefunden';
 }
 
 if (!in_array('zip', get_loaded_extensions())) {
-    $required[] = 'Die Class zip wurde nicht gefunden';
+    $required[] = 'Die Klasse <code>zip</code> wurde nicht gefunden';
 }
 
 if (!function_exists('json_decode')) {
-    $required[] = 'Die Funktion json_decode wurde nicht gefunden';
+    $required[] = 'Die Funktion <code>json_decode</code> wurde nicht gefunden';
 }
 if (!function_exists('file_put_contents')) {
-    $required[] = 'Die Funktion file_put_contents wurde nicht gefunden';
+    $required[] = 'Die Funktion <code>file_put_contents</code> wurde nicht gefunden';
 }
 
-if (count($required) > 0) {
-    echo '<h2>Fehler: Voraussetzungen nicht erfüllt</h2>';
-    echo '<ul><li>' . implode('</li><li>', $required) . '</li></ul>';
-    exit();
-}
 
-function checkUrl($url) {
-	if (strpos($url, 'https://github.com/redaxo/redaxo/releases/') !== false) {
-    	return true;
-	} else {
-		return false;
-		}
+
+function checkUrl($url)
+{
+    if (strpos($url, 'https://github.com/'.REPO.'/releases/') !== false) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 // Funktion die file_get_contents mit curl ersetzt
 function curl_file_get_contents($url)
 {
-    $curly = curl_init();
-    curl_setopt($curly, CURLOPT_HEADER, 0);
-    curl_setopt($curly, CURLOPT_RETURNTRANSFER, 1); //Return Data
-    curl_setopt($curly, CURLOPT_FOLLOWLOCATION, 1);
-    curl_setopt($curly, CURLOPT_URL, $url);
-    curl_setopt($curly, CURLOPT_USERAGENT, "REDAXO Loader");
-    $content = curl_exec($curly);
-    curl_close($curly);
-    return $content;
+    if (filter_var($url, FILTER_VALIDATE_URL) !== false) {
+        $curly = curl_init();
+        curl_setopt($curly, CURLOPT_HEADER, 0);
+        curl_setopt($curly, CURLOPT_RETURNTRANSFER, 1); //Return Data
+        curl_setopt($curly, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($curly, CURLOPT_URL, $url);
+        curl_setopt($curly, CURLOPT_USERAGENT, "REDAXO Loader");
+        $content = curl_exec($curly);
+        curl_close($curly);
+        return $content;
+    }
+    return false;
 }
 
-$install_path = './';
-$install_file = $install_path . 'redaxo.zip';
-$loader_file = $install_path . $loader_name;
-define('REPO', 'redaxo/redaxo');
 $releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases');
 $releases = json_decode($releases);
 
 // Für den Ajax-Aufruf
 if (isset($_GET['func'])) {
-
     $func = $_GET['func'];
 
     if ($func === "download") {
         $url = $_GET['url'];
-		if(checkUrl($url)) {
-			$redaxo_core = curl_file_get_contents($url);
-			if (file_put_contents($install_file, $redaxo_core)) {
-				echo '<div class="alert alert-warning"><code>redaxo.zip</code> wurde heruntergeladen und wird jetzt entpackt.</div>';
-			}
-		} else {
-			echo 'Falsche Datei';
-			exit();
-			}
+        if (checkUrl($url)) {
+            $redaxo_core = curl_file_get_contents($url);
+            if (file_put_contents($install_file, $redaxo_core)) {
+                echo '<div class="alert alert-warning"><code>redaxo.zip</code> wurde heruntergeladen und wird jetzt entpackt.</div>';
+            }
+        } else {
+            echo 'Falsche Datei';
+            exit();
+        }
     }
 
     if ($func === "unzip") {
@@ -94,7 +96,7 @@ if (isset($_GET['func'])) {
         if ($res === true) {
             $zip->extractTo($install_path);
             $zip->close();
-			$redirect = $_SERVER['REQUEST_URI'];
+            $redirect = $_SERVER['REQUEST_URI'];
             $redirect = str_replace($loader_name.'?func=unzip', 'redaxo', $redirect);
             echo '<div class="alert alert-success">REDAXO wurde erfolgreich entpackt. Du wirst in 5 Sekunden <a href="'.$redirect.'">zum Setup</a> weitergeleitet.</div>';
             unlink($install_file);
@@ -107,7 +109,7 @@ if (isset($_GET['func'])) {
 }
 // Wenn nicht im Ajax Aufruf
 else {
-?>
+    ?>
     <!DOCTYPE html>
     <html lang="de">
 
@@ -193,19 +195,18 @@ else {
                     <?php
                     $folder = "./redaxo";
 
-                    if (!is_dir($folder)) {
-                    ?>
+    if (!is_dir($folder) && count($required) <= 0) {
+        ?>
                         <form id="loader-form">
                             <?php
                             echo '<select id="version-select" class="form-control" required>';
-                            echo '<option selected disabled>Bitte REDAXO-Version w&auml;hlen</option>';
-                            if ($releases) {
-                                foreach ($releases as $release) {
-                                    echo '<option value="' . $release->assets[0]->browser_download_url . '" data-github-id="' . $release->id . '">' . $release->name . '</option>';
-                                }
-                            }
-                            echo '</select>';
-                            ?>
+        echo '<option selected disabled>Bitte REDAXO-Version w&auml;hlen</option>';
+        if ($releases) {
+            foreach ($releases as $release) {
+                echo '<option value="' . $release->assets[0]->browser_download_url . '" data-github-id="' . $release->id . '">' . $release->name . '</option>';
+            }
+        }
+        echo '</select>'; ?>
                             <button type="submit" class="my-3 btn btn-primary disabled" id="start-loader" disabled>REDAXO herunterladen und entpacken</button>
                         </form>
                 </div>
@@ -246,14 +247,22 @@ else {
                             echo '</div>';
                             echo '</div>';
                         }
-                    } else {
-                        echo '<div class="row">';
-                        echo '<div class="col-12 my-3">';
-                        echo '<div class="alert alert-warning">Es existiert bereits ein Ordner <code>/redaxo</code>.</div>';
-                        echo '</div>';
-                        echo '</div>';
-                    }
-        ?>
+    } elseif (count($required) > 0) {
+        echo '<div class="row">';
+        echo '<div class="col-12 my-3">';
+        echo '<div class="alert alert-warning">';
+        echo '<h2>Fehler: Voraussetzungen nicht erfüllt</h2>';
+        echo '<ul><li>' . implode('</li><li>', $required) . '</li></ul>';
+        echo '</div>';
+        echo '</div>';
+        echo '</div>';
+    } else {
+        echo '<div class="row">';
+        echo '<div class="col-12 my-3">';
+        echo '<div class="alert alert-warning">Es existiert bereits ein Ordner <code>/redaxo</code>.</div>';
+        echo '</div>';
+        echo '</div>';
+    } ?>
 
 
         </div>
