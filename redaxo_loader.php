@@ -77,7 +77,7 @@ function curl_file_get_contents($url)
         curl_close($curly);
         return $content;
     }
-    return false;
+    throw new Exception('invalid url');
 }
 
 $releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases');
