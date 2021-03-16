@@ -71,7 +71,7 @@ function curl_file_get_contents($url)
             if (!$error && function_exists('curl_strerror')) {
                  $error = curl_strerror($errno);
             }
-            throw new Exception('curl error '.$errno.' while downloading');
+            throw new Exception('curl error '.$errno.' while downloading: '.$error);
         }
         
         curl_close($curly);
