@@ -52,6 +52,42 @@ function checkUrl($url)
     }
 }
 
+// X-Rate-Limit von GitHub checken
+function check_x_rate_limit($url)
+{
+	$limits = [];
+	if (filter_var($url, FILTER_VALIDATE_URL) !== false) {
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //Return Data
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_USERAGENT, "REDAXO Loader");
+		// this function is called by curl for each header received
+		curl_setopt($ch, CURLOPT_HEADERFUNCTION,
+		  function($curl, $header) use (&$headers)
+		  {
+			$len = strlen($header);
+			$header = explode(':', $header, 2);
+			if (count($header) < 2) // ignore invalid headers
+			  return $len;
+		
+			$headers[strtolower(trim($header[0]))][] = trim($header[1]);
+		
+			return $len;
+		  }
+		);
+		$data = curl_exec($ch);
+		$limits['remaining'] = $headers['x-ratelimit-remaining'];
+		$limits['used'] = $headers['x-ratelimit-used'];
+		$limits['reset'] = $headers['x-ratelimit-reset'];
+        curl_close($ch);
+		
+		return $limits;
+    }
+    return false;
+}
+
 // Funktion die file_get_contents mit curl ersetzt
 function curl_file_get_contents($url)
 {
@@ -64,13 +100,21 @@ function curl_file_get_contents($url)
         curl_setopt($curly, CURLOPT_USERAGENT, "REDAXO Loader");
         $content = curl_exec($curly);
         curl_close($curly);
+		
         return $content;
     }
     return false;
 }
 
-$releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases');
-$releases = json_decode($releases);
+$x_rate_limit = check_x_rate_limit('https://api.github.com/repos/' . REPO . '/releases');
+#print_r($x_rate_limit);
+
+if($x_rate_limit['remaining'] > 0) {
+    $releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases');
+    $releases = json_decode($releases);
+} else {
+    $required[] = 'Die Anfragen an die GitHub-API vom Server mit der IP <code>' . $_SERVER['SERVER_ADDR'] . '</code> wurden bereits aufgebraucht.<br>In Kürze erfolgt allerdings ein Reset. Bitte versuche es zu folgendem Zeitpunkt erneut: <strong>' . date('d.m.Y H:i:s', $x_rate_limit['reset'][0]) . ' Uhr</strong>';
+    }
 
 // Für den Ajax-Aufruf
 if (isset($_GET['func'])) {
