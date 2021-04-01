@@ -63,10 +63,21 @@ function curl_file_get_contents($url)
         curl_setopt($curly, CURLOPT_URL, $url);
         curl_setopt($curly, CURLOPT_USERAGENT, "REDAXO Loader");
         $content = curl_exec($curly);
+        
+        $error = curl_error($curly);
+        $errno = curl_errno($curly);
+        
+        if (CURLE_OK !== $errno || $error) {
+            if (!$error && function_exists('curl_strerror')) {
+                 $error = curl_strerror($errno);
+            }
+            throw new Exception('curl error '.$errno.' while downloading: '.$error);
+        }
+        
         curl_close($curly);
         return $content;
     }
-    return false;
+    throw new Exception('invalid url');
 }
 
 $releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases');
