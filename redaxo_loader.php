@@ -6,6 +6,8 @@ ini_set("display_errors", 1);
 /**
  * Download REDAXO releases from github
  * License: MIT License
+ * Version: 1.1 
+ * https://github.com/FriendsOfREDAXO/redaxo_loader
  */
 
 // github releases from
