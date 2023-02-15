@@ -74,7 +74,7 @@ function check_x_rate_limit($url)
 			if (count($header) < 2) // ignore invalid headers
 			  return $len;
 		
-			$headers[strtolower(trim($header[0]))][] = trim($header[1]);
+			$headers[strtolower(trim($header[0]))] = trim($header[1]);
 		
 			return $len;
 		  }
