@@ -1,17 +1,19 @@
 <?php
 error_reporting(E_ALL);
-ini_set("display_errors", 1);
-
+ini_set('display_errors', 1);
 
 /**
  * Download REDAXO releases from github
  * License: MIT License
- * Version: 1.2 
- * https://github.com/FriendsOfREDAXO/redaxo_loader
+ * Version: 1.2
+ * https://github.com/FriendsOfREDAXO/redaxo_loader.
  */
 
+// github token from @rex-bot https://github.com/rex-bot
+$githubtoken = 'QW3BFZrBzNw9EV4pHbolnN3N1ShdXeDBlaYF0bLxkNs90czg3Xwh2Z';
+
 // github releases from
-define('REPO', 'redaxo/redaxo');  
+define('REPO', 'redaxo/redaxo');
 
 // set loader name
 $loader_name = basename(__FILE__);
@@ -20,11 +22,10 @@ $install_path = './';
 $install_file = $install_path . 'redaxo.zip';
 $loader_file = $install_path . $loader_name;
 
-
 // check requirements
 $required = [];
 
-if (basename(__FILE__) == 'index.php') {
+if ('index.php' === basename(__FILE__)) {
     $required[] = 'Der Dateiname des Loaders darf nicht <code>index.php</code> sein';
 }
 
@@ -39,107 +40,117 @@ if (!in_array('zip', get_loaded_extensions())) {
 if (!function_exists('json_decode')) {
     $required[] = 'Die Funktion <code>json_decode</code> wurde nicht gefunden';
 }
+
 if (!function_exists('file_put_contents')) {
     $required[] = 'Die Funktion <code>file_put_contents</code> wurde nicht gefunden';
 }
 
-
+if (is_dir('./redaxo')) {
+    $required[] = 'Es existiert bereits ein Ordner <code>/redaxo</code>';
+}
 
 function checkUrl($url)
 {
-    if (strpos($url, 'https://github.com/'.REPO.'/releases/') !== false) {
+    if (false !== strpos($url, 'https://github.com/'.REPO.'/releases/')) {
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 // X-Rate-Limit von GitHub checken
-function check_x_rate_limit($url)
+function check_x_rate_limit($url, $githubtoken)
 {
-	$limits = [];
-	if (filter_var($url, FILTER_VALIDATE_URL) !== false) {
+    $limits = [];
+    if (false !== filter_var($url, FILTER_VALIDATE_URL)) {
         $ch = curl_init();
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); //Return Data
+        curl_setopt($ch, CURLOPT_HEADER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // Return Data
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_USERAGENT, "REDAXO Loader");
-		// this function is called by curl for each header received
-		curl_setopt($ch, CURLOPT_HEADERFUNCTION,
-		  function($curl, $header) use (&$headers)
-		  {
-			$len = strlen($header);
-			$header = explode(':', $header, 2);
-			if (count($header) < 2) // ignore invalid headers
-			  return $len;
-		
-			$headers[strtolower(trim($header[0]))] = trim($header[1]);
-		
-			return $len;
-		  }
-		);
-		$data = curl_exec($ch);
-		$limits['remaining'] = $headers['x-ratelimit-remaining'];
-		$limits['used'] = $headers['x-ratelimit-used'];
-		$limits['reset'] = $headers['x-ratelimit-reset'];
-        curl_close($ch);
-		
-		return $limits;
+        curl_setopt($ch, CURLOPT_USERAGENT, 'REDAXO Loader');
+        curl_setopt($ch, CURLOPT_ENCODING, '');
+
+        $header = [];
+        $header[] = 'Accept: application/vnd.github+json';
+        $header[] = 'X-GitHub-Api-Version: 2022-11-28'; /** @see https://docs.github.com/en/rest/overview/api-versions */
+        $header[] = 'Authorization: token ' . base64_decode(strrev($githubtoken));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+
+        $data = curl_exec($ch);
+        $ghlimits = json_decode($data, true);
+
+        if (isset($ghlimits['rate'])) {
+            $limits['remaining'] = $ghlimits['rate']['remaining'];
+            $limits['used'] = $ghlimits['rate']['used'];
+            $limits['limit'] = $ghlimits['rate']['limit'];
+            $limits['reset'] = $ghlimits['rate']['reset'];
+            curl_close($ch);
+            return $limits;
+        }
     }
     return false;
 }
 
 // Funktion die file_get_contents mit curl ersetzt
-function curl_file_get_contents($url)
+function curl_file_get_contents($url, $githubtoken)
 {
-    if (filter_var($url, FILTER_VALIDATE_URL) !== false) {
+    if (false !== filter_var($url, FILTER_VALIDATE_URL)) {
         $curly = curl_init();
-        curl_setopt($curly, CURLOPT_HEADER, 0);
-        curl_setopt($curly, CURLOPT_RETURNTRANSFER, 1); //Return Data
+        curl_setopt($curly, CURLOPT_RETURNTRANSFER, 1); // Return Data
         curl_setopt($curly, CURLOPT_FOLLOWLOCATION, 1);
         curl_setopt($curly, CURLOPT_URL, $url);
-        curl_setopt($curly, CURLOPT_USERAGENT, "REDAXO Loader");
+        curl_setopt($curly, CURLOPT_USERAGENT, 'REDAXO Loader');
+        curl_setopt($curly, CURLOPT_HEADER, false);
+        curl_setopt($curly, CURLOPT_ENCODING, '');
+
+        $header = [];
+        $header[] = 'Accept: application/vnd.github+json';
+        $header[] = 'X-GitHub-Api-Version: 2022-11-28'; /** @see https://docs.github.com/en/rest/overview/api-versions */
+        $header[] = 'Authorization: token ' . base64_decode(strrev($githubtoken));
+        curl_setopt($curly, CURLOPT_HTTPHEADER, $header);
         $content = curl_exec($curly);
+
         curl_close($curly);
-		
+
         return $content;
     }
     return false;
 }
 
-$x_rate_limit = check_x_rate_limit('https://api.github.com/repos/' . REPO . '/releases');
-#print_r($x_rate_limit);
+$x_rate_limit = check_x_rate_limit('https://api.github.com/rate_limit', $githubtoken);
+// print_r($x_rate_limit);
 
-if($x_rate_limit['remaining'] > 0) {
-    $releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases');
-    $releases = json_decode($releases);
-} else {
-    $required[] = 'Die Anfragen an die GitHub-API vom Server mit der IP <code>' . $_SERVER['SERVER_ADDR'] . '</code> wurden bereits aufgebraucht.<br>In Kürze erfolgt allerdings ein Reset. Bitte versuche es zu folgendem Zeitpunkt erneut: <strong>' . date('d.m.Y H:i:s', $x_rate_limit['reset'][0]) . ' Uhr</strong>';
+if (count($required) <= 0) {
+    if ($x_rate_limit['remaining'] > 0) {
+        $releases = curl_file_get_contents('https://api.github.com/repos/' . REPO . '/releases', $githubtoken);
+        $releases = json_decode($releases);
+    } else {
+        $required[] = 'Die Anfragen an die GitHub-API vom Server mit der IP <code>' . $_SERVER['SERVER_ADDR'] . '</code> wurden bereits aufgebraucht.<br>In Kürze erfolgt allerdings ein Reset. Bitte versuche es zu folgendem Zeitpunkt erneut: <strong>' . date('d.m.Y H:i:s', $x_rate_limit['reset']) . ' Uhr</strong>';
     }
+}
 
 // Für den Ajax-Aufruf
 if (isset($_GET['func'])) {
     $func = $_GET['func'];
 
-    if ($func === "download") {
+    if ('download' === $func) {
         $url = $_GET['url'];
         if (checkUrl($url)) {
-            $redaxo_core = curl_file_get_contents($url);
+            $redaxo_core = curl_file_get_contents($url, $githubtoken);
             if (file_put_contents($install_file, $redaxo_core)) {
                 echo '<div class="alert alert-warning"><code>redaxo.zip</code> wurde heruntergeladen und wird jetzt entpackt.</div>';
             }
         } else {
             echo 'Falsche Datei';
-            exit();
+            exit;
         }
     }
 
-    if ($func === "unzip") {
-        $zip = new ZipArchive;
+    if ('unzip' === $func) {
+        $zip = new ZipArchive();
         $res = $zip->open($install_file);
 
-        if ($res === true) {
+        if (true === $res) {
             $zip->extractTo($install_path);
             $zip->close();
             $redirect = $_SERVER['REQUEST_URI'];
@@ -155,7 +166,8 @@ if (isset($_GET['func'])) {
 }
 // Wenn nicht im Ajax Aufruf
 else {
-    ?>
+
+?>
     <!DOCTYPE html>
     <html lang="de">
 
@@ -238,21 +250,22 @@ else {
             </div>
             <div class="row">
                 <div class="col-12 col-md-6 offset-md-3 my-4">
-                    <?php
-                    $folder = "./redaxo";
+<?php
+    $folder = './redaxo';
 
     if (!is_dir($folder) && count($required) <= 0) {
-        ?>
+?>
                         <form id="loader-form">
-                            <?php
-                            echo '<select id="version-select" class="form-control" required>';
-        echo '<option selected disabled>Bitte REDAXO-Version w&auml;hlen</option>';
+<?php
         if ($releases) {
+            echo '<select id="version-select" class="form-control" required>';
+            echo '<option selected disabled>Bitte REDAXO-Version w&auml;hlen</option>';
             foreach ($releases as $release) {
                 echo '<option value="' . $release->assets[0]->browser_download_url . '" data-github-id="' . $release->id . '">' . $release->name . '</option>';
             }
+            echo '</select>';
         }
-        echo '</select>'; ?>
+?>
                             <button type="submit" class="my-3 btn btn-primary disabled" id="start-loader" disabled>REDAXO herunterladen und entpacken</button>
                         </form>
                 </div>
@@ -264,35 +277,34 @@ else {
                 </div>
             </div>
 
+<?php
+        if ($releases) {
+            foreach ($releases as $release) {
+                echo '<div class="row rex-version-list" id="v-' . $release->id . '">';
+                echo '<div class="col-12 my-3">';
+                echo '<div class="card">';
 
-        <?php
-                        if ($releases) {
-                            foreach ($releases as $release) {
-                                echo '<div class="row rex-version-list" id="v-' . $release->id . '">';
-                                echo '<div class="col-12 my-3">';
-                                echo '<div class="card">';
+                echo '<div class="card-header">';
+                echo '<h2>' . $release->name . '</h2>';
+                echo '</div>';
 
-                                echo '<div class="card-header">';
-                                echo '<h2>' . $release->name . '</h2>';
-                                echo '</div>';
+                echo '<div class="card-body">';
+                echo '<p>Veröffentlicht: ' . date('d.m.Y', strtotime($release->published_at)) . '</p>';
+                echo '<p>Auf GitHub ansehen: <a href="' . $release->html_url . '" target="_blank">' . $release->html_url . '</a></p>';
+                // echo strip_tags($release->body);
+                echo '</div>';
 
-                                echo '<div class="card-body">';
-                                echo '<p>Veröffentlicht: ' . date('d.m.Y', strtotime($release->published_at)) . '</p>';
-                                echo '<p>Auf GitHub ansehen: <a href="' . $release->html_url . '" target="_blank">' . $release->html_url . '</a></p>';
-                                #echo strip_tags($release->body);
-                                echo '</div>';
-
-                                echo '</div>';
-                                echo '</div>';
-                                echo '</div>';
-                            }
-                        } else {
-                            echo '<div class="row">';
-                            echo '<div class="col-12 my-3">';
-                            echo '<div class="alert alert-warning">REDAXO-Versionen auf GitHub können nicht gelesen werden.</div>';
-                            echo '</div>';
-                            echo '</div>';
-                        }
+                echo '</div>';
+                echo '</div>';
+                echo '</div>';
+            }
+        } else {
+            echo '<div class="row">';
+            echo '<div class="col-12 my-3">';
+            echo '<div class="alert alert-warning">REDAXO-Versionen auf GitHub können nicht gelesen werden.</div>';
+            echo '</div>';
+            echo '</div>';
+        }
     } elseif (count($required) > 0) {
         echo '<div class="row">';
         echo '<div class="col-12 my-3">';
@@ -308,8 +320,8 @@ else {
         echo '<div class="alert alert-warning">Es existiert bereits ein Ordner <code>/redaxo</code>.</div>';
         echo '</div>';
         echo '</div>';
-    } ?>
-
+    }
+?>
 
         </div>
 
@@ -331,7 +343,7 @@ else {
 
                 function unzip() {
                     $.ajax({
-                        url: '<?=$loader_name?>?func=unzip',
+                        url: '<?= $loader_name?>?func=unzip',
                         error: function() {
                             $('#info').html('<div class="alert alert-danger">Ein Fehler beim Entpacken ist aufgetreten.</div>');
                         },
@@ -351,7 +363,7 @@ else {
                     var downloadUrl = $('#version-select').find(':selected').val()
                     e.preventDefault(); // prevent native submit
                     $.ajax({
-                        url: '<?=$loader_name?>?func=download&url=' + downloadUrl,
+                        url: '<?= $loader_name?>?func=download&url=' + downloadUrl,
                         error: function() {
                             $('#info').html('<div class="alert alert-danger">Ein Fehler ist aufgetreten.</div>');
                         },
@@ -376,4 +388,3 @@ else {
     </html>
 <?php
 }
-?>
