@@ -7,7 +7,7 @@ ini_set('display_errors', 1);
 /**
  * Download REDAXO releases from github
  * License: MIT License
- * Version: 1.5 (Enhanced)
+ * Version: 1.5.1 (Enhanced)
  * https://github.com/FriendsOfREDAXO/redaxo_loader
  */
 
@@ -15,7 +15,7 @@ ini_set('display_errors', 1);
 // github token from @rex-bot https://github.com/rex-bot (obfuscated)
 $githubtoken = 'QW3BFZrBzNw9EV4pHbolnN3N1ShdXeDBlaYF0bLxkNs90czg3Xwh2Z';
 // github releases from
-define('REPO', 'redaxo/redaxo');
+define('REPO', 'redaxo/core');
 // set loader name
 $loader_name = basename(__FILE__);
 // Paths
